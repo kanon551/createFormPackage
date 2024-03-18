@@ -1,4 +1,50 @@
-# Imagine you're creating a website where users can fill out different types of forms. This code helps you build those forms and make sure users fill them out correctly.
+# F-Engine (Form-Engine)
+
+1. Build a library which takes the below JSON and render a form.
+2. This library should handle following types of form field - Text, Number, Checkbox, Select
+3. Form should do all the validation and show the error message in case of validation failure.
+4. Write custom hooks to perform the validation.
+
+Sample JSON:
+[
+{
+"type":"text",
+"label":"Hello",
+"validation":"number",
+"min":0,
+"max":100
+},
+{
+"type":"checkbox",
+"mode":"single"
+"label":"Gender",
+},
+{
+"type":"checkbox",
+"mode":"group"
+"groupLabel":["Male","Female"]
+"label":"Gender"
+},
+{
+
+"type":"select",
+"options":["Bangalore","Jaipur","Delhi"]
+"label":"City",
+}
+]
+
+
+Submit -> Validation will perform on submit.
+
+# Solution
+1. A library has been created and can be called as F-engine.
+2. This engine creates forms 
+3. This engine handles form fields ( Text, Number, Checkbox, Select)  as of now.
+3. This engine validates field data and throws error message
+4. This engine has custom hook called useFormDataValidation 
+
+# Description
+##  Imagine you're creating a website where users can fill out different types of forms. This code helps you build those forms and make sure users fill them out correctly.
 
 ## Building Forms:
 
