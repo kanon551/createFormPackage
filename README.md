@@ -8,6 +8,13 @@
 
 https://github.com/kanon551/createFormPackage/assets/88090133/efd34e17-c144-44c7-90b2-b22a8950359d
 
+# Technical Aspects
+1. React
+2. Typescript
+3. Material-ui
+4. Styled-components
+5. React-error-boundary
+6. Custom Hooks
 
 Sample JSON:
 [

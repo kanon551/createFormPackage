@@ -77,8 +77,8 @@ const App = () => {
     <div>
       <Router>
             <Routes>
-            {/* <Route path="/" element={<Layout><FormCard schema={schema1} name={"Schema 1"}/></Layout>} /> */}
-            <Route path="/" element={<Layout><FormCard schema={schema2} name={"Schema 2"}/></Layout>} />
+            <Route path="/" element={<Layout><FormCard schema={schema1} name={"Schema 1"}/></Layout>} />
+            {/* <Route path="/" element={<Layout><FormCard schema={schema2} name={"Schema 2"}/></Layout>} /> */}
             </Routes>
       </Router>
     </div>
