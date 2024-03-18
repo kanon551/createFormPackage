@@ -17,3 +17,14 @@ The code also organizes the forms neatly on the website. It arranges everything 
 Imagine if every website had confusing or broken forms. It would be really frustrating to use, right? So, this code is important because it makes sure forms on websites work smoothly, making it easier for everyone to use the website without getting stuck or making mistakes.
 
 In a nutshell, this code helps create user-friendly forms on websites and ensures that users can fill them out correctly without any hassle. It's important because it improves the overall experience of using the website and reduces errors while filling out forms.
+
+## Improvments
+
+There is always room for improvments, In future this work can be extended to 
+1. Add Regex patterns for each field validations ( In case )
+2. Add a key called required* ( Allowing to choose only required fields in the form , otherwise ignore)
+3. Add Icon Unique to each field ( Thus differentiating between each fields )
+4. Add field type="number"
+5. Add number field validation (max and min ti define the range)
+6. Add Unique ID ( to detect duplicates )
+7. Add Unique name ( label should be different from name key )
