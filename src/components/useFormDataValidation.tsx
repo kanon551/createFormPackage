@@ -1,5 +1,5 @@
 import React, { useState, SyntheticEvent, useEffect } from 'react';
-import { FormDataErrorMessages, FormDataErrors, FormField } from "../pages/TestCard";
+import { FormDataErrorMessages, FormDataErrors, FormField } from '../pages/FormCard';
 
 
 
@@ -90,7 +90,28 @@ const useFormDataValidation = (
         }
     };
 
-    return { validateData };
+
+    const fieldValidation = () => {
+        for (const field of schema) {
+            const key = field.label;
+            if (field.type === "text" && field.min && field.max) {
+                if (formData[key] === null || formData[key] === undefined || formData[key] === "") {
+                    setFormDataErrors((prevErrors) => ({ ...prevErrors, [key]: false }));
+                    setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [key]: '' }));
+                } else if (formData[key].length > field.max) {
+                    console.log(`Length of ${key} field should not exceed ${field.max} characters`);
+                    setFormDataErrors((prevErrors) => ({ ...prevErrors, [key]: true }));
+                    setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [key]: `Length of ${key} field should not exceed ${field.max} characters` }));
+                } else if (formData[key].length < field.min) {
+                    console.log(`Length of ${key} field should be at least ${field.min} characters`);
+                    setFormDataErrors((prevErrors) => ({ ...prevErrors, [key]: true }));
+                    setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [key]: `Length of ${key} field should be at least ${field.min} characters` }));
+                }
+            }
+        }
+    };
+
+    return { validateData, fieldValidation };
 };
 
 export default useFormDataValidation;

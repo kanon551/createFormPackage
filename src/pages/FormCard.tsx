@@ -14,10 +14,11 @@ import FormHelperText from '@mui/joy/FormHelperText';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
-
+import useFormDataValidation from '../components/useFormDataValidation';
 import CustomDropDown, { MyEvent } from '../components/CustomDropDown';
 
-interface FormField {
+
+export interface FormField {
     type: string;
     label: string;
     validation?: string;
@@ -29,44 +30,23 @@ interface FormField {
 }
 
 
-interface FormDataErrors {
+export interface FormDataErrors {
     [key: string]: boolean;
 }
 
-interface FormDataErrorMessages {
+export interface FormDataErrorMessages {
     [key: string]: string;
 }
 
-const schema: FormField[] = [
-    {
-        type: 'text',
-        label: 'Hello',
-        validation: 'number',
-        min: 2,
-        max: 100,
-    },
-    {
-        type: 'checkbox',
-        mode: 'single',
-        label: 'MaritalStatus',
-    },
-    {
-        type: 'checkbox',
-        mode: 'group',
-        groupLabel: ['Male', 'Female'],
-        label: 'Gender',
-    },
-    {
-        type: 'select',
-        options: ['Bangalore', 'Jaipur', 'Delhi'],
-        label: 'City',
-    },
-];
+interface FormCardProps {
+    schema: FormField[];
+    name: string;
+}
 
-const FormCard = () => {
+
+const FormCard = ({ schema, name }: FormCardProps) => {
 
     const initialState: Record<string, any> = {};
-
 
     schema.forEach((field) => {
         if (field.type === 'checkbox') {
@@ -85,154 +65,88 @@ const FormCard = () => {
         }
     });
 
-     const initializeFormDataErrors = (initialData: Record<string, any>): FormDataErrors => {
-            const errors: FormDataErrors = {};
-            for (const key in initialData) {
-            if (Object.prototype.hasOwnProperty.call(initialData, key)) {
-                errors[key] = false;
-            }
-            }
-         return errors;
-    };
-
-    const initializeFormDataErrorMessages = (initialData: Record<string, any>): FormDataErrorMessages => {
-            const errorMessages: FormDataErrorMessages = {};
-            for (const key in initialData) {
-                if (Object.prototype.hasOwnProperty.call(initialData, key)) {
-                    errorMessages[key] = '';
-                }
-            }
-        return errorMessages;
-    };
-
-
     const [formData, setFormData] = useState(initialState);
-    
-    const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>(initializeFormDataErrors(initialState));
-    const [formDataErrorMessages, setFormDataErrorMessages] = useState<FormDataErrorMessages>(initializeFormDataErrorMessages(initialState));
+
+    const [formDataErrors, setFormDataErrors] = useState<FormDataErrors>({});
+    const [formDataErrorMessages, setFormDataErrorMessages] = useState<FormDataErrorMessages>({});
+
+    const { validateData, fieldValidation } = useFormDataValidation(
+        formData,
+        schema,
+        setFormDataErrors,
+        setFormDataErrorMessages
+    );
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        validateData(formData, schema);
-       
+        const validationResponse = validateData();
+        if (validationResponse) {
+            console.log(validationResponse);
+        } else {
+            console.log('Form data validation failed');
+        }
+
     };
 
-    const validateData = (formData: Record<string, any>, schema: FormField[]) => {
-    let errorEncountered = false;
-        for (const field of schema) {
-          const key = field.label;
-          if (field.type === "text" ) {
-            if(formData[key] === null || formData[key] === undefined || formData[key] === ""){
-                console.log(`Please enter a value for ${key}`);
-                setFormDataErrors((prevErrors)=> ({...prevErrors, [key]: true}));
-                setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [key]: `Please enter a value for ${key}`}));
-
-                errorEncountered = true;
-                // return; // Exit the entire function when an invalid value is found
-            }
-            // else if( ( field.validation === 'number' && field.max && formData[key].length > field.max ) || 
-            //             (field.validation === 'number' && field.min && formData[key].length < field.min)){
-            //     console.log(`Length of ${key} field should be between ${field.min}-${field.max}`);
-            //     setFormDataErrors((prevErrors)=> ({...prevErrors, [key]: true}));
-            //     setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [key]: `Length of ${key} field should be between ${field.min}-${field.max}`}));
-            //     return; // Exit the entire function when an invalid value is found
-            // }
-           
-          }
-          else if(field.type === 'checkbox' && field.mode === 'single' && formData[key] === false) {
-            console.log(`Please tick ${key}`);
-            setFormDataErrors((prevErrors)=> ({...prevErrors, [key]: true}));
-            setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [key]: `Please select ${key}`}));
-
-            errorEncountered = true;
-          }
-          else if(field.type === "checkbox" && field.mode === 'group' && field.groupLabel){
-            
-            const status = field.groupLabel?.some((option) => {
-                return formData[`${field.label}-${option}`] === true;
-            });
-
-            if(status === true  && field.groupLabel?.length > 0){
-                setFormDataErrors((prevErrors)=> ({...prevErrors, [`${field.label}-${field.groupLabel![0]}`]: false}));
-                setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [`${field.label}-${field.groupLabel![0]}`]: ''}));
-            }
-            else{
-                console.log(`Please tick any one of ${field.label}`);
-
-                setFormDataErrors((prevErrors)=> ({...prevErrors, [`${field.label}-${field.groupLabel![0]}`]: true}));
-                setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [`${field.label}-${field.groupLabel![0]}`]: `Please tick any one of ${field.label}`}));
-
-                errorEncountered = true;
-            }
-          }
-          else if(field.type === 'select' && formData[key] === null){
-            console.log(`Please select ${key}`);
-            setFormDataErrors((prevErrors)=> ({...prevErrors, [key]: true}));
-            setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [key]: `Please select ${key}`}));
-
-            errorEncountered = true;
-          }
-          if(errorEncountered){
-            return;
-          }
-        }
-
-        if(!errorEncountered){
-            console.log(formData);
-        }
-      };
-      
+    useEffect(() => {
+        fieldValidation();
+    }, [formData])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | MyEvent, field: FormField) => {
-        
+
         if (field.type === 'checkbox' && e !== null) {
+
             const target = e.target as HTMLInputElement;
             const { name } = target;
             const isChecked = (e.target as HTMLInputElement).checked;
             if (field.mode === 'single') {
+
                 setFormData((prevData) => ({ ...prevData, [name]: isChecked }));
-                setFormDataErrors((prevErrors)=> ({...prevErrors, [name]: false}));
-                setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [name]: ''}));
+                setFormDataErrors((prevErrors) => ({ ...prevErrors, [name]: false }));
+                setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [name]: '' }));
             }
-        else if (field.mode === 'group' && field.groupLabel) {
-        const updatedFormData = { ...formData };
-        let isAnyCheckboxSelected = false;
-    
-        field.groupLabel?.forEach((option) => {
-            updatedFormData[`${field.label}-${option}`] = name === `${field.label}-${option}` ? isChecked : formData[`${field.label}-${option}`];
-            
-            if (updatedFormData[`${field.label}-${option}`]) {
-                isAnyCheckboxSelected = true;
+            else if (field.mode === 'group' && field.groupLabel) {
+                const updatedFormData = { ...formData };
+                let isAnyCheckboxSelected = false;
+                let selectedCheckboxName = '';
+
+                field.groupLabel?.forEach((option) => {
+                    const checkboxName = `${field.label}-${option}`;
+
+                    if (name === checkboxName) {
+                        updatedFormData[checkboxName] = isChecked;
+                        if (isChecked) {
+                            isAnyCheckboxSelected = true;
+                            selectedCheckboxName = checkboxName;
+                        }
+                    } else {
+                        updatedFormData[checkboxName] = false;
+                    }
+                });
+
+                setFormData(updatedFormData);
+                setFormDataErrors((prevErrors) => ({ ...prevErrors, [name]: false }));
+                setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [name]: '' }));
+
+                if (isAnyCheckboxSelected) {
+                    setFormDataErrors((prevErrors) => ({ ...prevErrors, [selectedCheckboxName]: false }));
+                    setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [selectedCheckboxName]: '' }));
+                }
             }
-        });
-    
-        setFormData(updatedFormData);
-        setFormDataErrors((prevErrors) => ({ ...prevErrors, [name]: false }));
-        setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [name]: '' }));
-    
-        // Clear error message if at least one checkbox is selected
-        if (isAnyCheckboxSelected) {
-            setFormDataErrors((prevErrors) => ({ ...prevErrors, [`${field.label}-${field.groupLabel![0]}`]: false }));
-            setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [`${field.label}-${field.groupLabel![0]}`]: '' }));
-        }
-    }
+
 
         }
-        else if (field.type === 'text' && e !== null) {
-            // validateData(formData, schema);
-            
+        else if (field.type === 'text' && e !== null && field.max && field.min) {
             const target = e.target as HTMLInputElement;
             const { name, value } = target;
-            setFormData((prevData) => ({ ...prevData, [name]: value }));
-            setFormDataErrors((prevErrors)=> ({...prevErrors, [name]: false}));
-            setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [name]: ''}));
 
-            
+            setFormData((prevData) => ({ ...prevData, [name]: value }));
         }
+
         else if (field.type === 'select') {
             setFormData((prevData) => ({ ...prevData, [e.target.name]: e.target.value }));
-            setFormDataErrors((prevErrors)=> ({...prevErrors, [e.target.name]: false}));
-            setFormDataErrorMessages((prevMessages)=> ({...prevMessages, [e.target.name]: ''}));
+            setFormDataErrors((prevErrors) => ({ ...prevErrors, [e.target.name]: false }));
+            setFormDataErrorMessages((prevMessages) => ({ ...prevMessages, [e.target.name]: '' }));
         }
 
     };
@@ -250,8 +164,11 @@ const FormCard = () => {
             }}
         >
             <Typography level="title-lg" startDecorator={<InfoOutlined />}>
-                Form Validation
+                {
+                    `Form: ${name}`
+                }
             </Typography>
+            <Typography level="body-xs">Powered by F-engine</Typography>
             <Divider inset="none" />
             <CardContent
                 component={"form"}
@@ -274,18 +191,39 @@ const FormCard = () => {
                                     value={formData[field.label]}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleInputChange(e, field)}
                                     endDecorator={<CreditCardIcon />} />
-                                    {
-                                        formDataErrors[field.label] &&
-                                        <FormHelperText>
+                                {
+                                    formDataErrors[field.label] &&
+                                    <FormHelperText>
                                         <InfoOutlined />
-                                            {
-                                                formDataErrorMessages[field.label]
-                                            }
-                                        </FormHelperText>
-                                    }
-                               
+                                        {
+                                            formDataErrorMessages[field.label]
+                                        }
+                                    </FormHelperText>
+                                }
+
                             </FormControl>
                         )
+                    })
+                }
+                {
+                    schema.map((field, index) => {
+                        if (field.type === 'select') {
+                            return (
+                                <FormControl key={index} sx={{ gridColumn: '1/-1' }}>
+
+                                    <CustomDropDown
+                                        field={field}
+                                        formData={formData}
+                                        handleDropDownChange={(myEvent: MyEvent) => handleInputChange(myEvent, field)}
+                                    />
+                                    {
+                                        formDataErrors[field.label] &&
+                                        <FormHelperText sx={{ color: 'red' }}>{formDataErrorMessages[field.label]}</FormHelperText>
+                                    }
+                                </FormControl>
+
+                            )
+                        }
                     })
                 }
                 {
@@ -296,16 +234,17 @@ const FormCard = () => {
                             if (field.mode === 'single') {
                                 return (
                                     <FormControl key={index} sx={{ gridColumn: '1/-1' }}>
+                                        <Divider sx={{ marginTop: '1vh', marginBottom: '1vh' }} />
                                         <Checkbox label={field.label}
 
                                             name={field.label}
                                             checked={formData[field.label]}
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e, field)} />
-                                            {
-                                                formDataErrors[field.label] &&
-                                                <FormHelperText sx={{color: 'red'}}>{formDataErrorMessages[field.label]}</FormHelperText>
-                                            }
-                                            
+                                        {
+                                            formDataErrors[field.label] &&
+                                            <FormHelperText sx={{ color: 'red' }}>{formDataErrorMessages[field.label]}</FormHelperText>
+                                        }
+
                                     </FormControl>
                                 )
 
@@ -313,13 +252,13 @@ const FormCard = () => {
 
                             else if (field.mode === 'group') {
                                 return (
-                                    <div key={index}  style={{ gridColumn: '1/-1' }}>
+                                    <div key={index} style={{ gridColumn: '1/-1' }}>
                                         <Typography id="sandwich-group" level="body-sm" fontWeight="lg" mb={1}>
                                             {field.label}
                                         </Typography>
                                         {
-                                            field.groupLabel !== undefined &&  formDataErrors[`${field.label}-${field.groupLabel[0]}`] &&
-                                            <FormHelperText sx={{color: 'red'}}>{formDataErrorMessages[`${field.label}-${field.groupLabel[0]}`]}</FormHelperText>
+                                            field.groupLabel !== undefined && formDataErrors[`${field.label}-${field.groupLabel[0]}`] &&
+                                            <FormHelperText sx={{ color: 'red' }}>{formDataErrorMessages[`${field.label}-${field.groupLabel[0]}`]}</FormHelperText>
                                         }
                                         <div role="group" aria-labelledby="sandwich-group">
                                             <List size="sm">
@@ -342,27 +281,7 @@ const FormCard = () => {
                         }
                     })
                 }
-                {
-                    schema.map((field, index) => {
-                        if (field.type === 'select') {
-                            return (
-                                <FormControl key={index} sx={{ gridColumn: '1/-1' }}>
-                                    
-                                    <CustomDropDown
-                                        field={field}
-                                        formData={formData}
-                                        handleDropDownChange={(myEvent: MyEvent) => handleInputChange(myEvent, field)}
-                                    />
-                                     {
-                                                formDataErrors[field.label] &&
-                                                <FormHelperText sx={{color: 'red'}}>{formDataErrorMessages[field.label]}</FormHelperText>
-                                    }
-                                </FormControl>
 
-                            )
-                        }
-                    })
-                }
                 <CardActions sx={{ gridColumn: '1/-1' }}>
                     <Button variant="solid" color="primary" type="submit">
                         Submit

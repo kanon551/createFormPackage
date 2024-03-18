@@ -7,54 +7,51 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Home from './pages/Home';
 import Layout from './utils/Layout';
-import { FormField } from './utils/useValidation';
-import FormCard from './pages/FormCard';
-import TestCard from './pages/TestCard';
+import FormCard, { FormField } from './pages/FormCard';
 
 
 const App = () => {
 
   const schema1: FormField[] = [
     {
-      type: 'text',
-      label: 'Hello',
-      validation: 'number',
-      min: 0,
-      max: 100,
+        type: 'text',
+        label: 'Hello',
+        validation: 'number',
+        min: 2,
+        max: 100,
     },
     {
-      type: 'checkbox',
-      mode: 'single',
-      label: 'Gender',
+        type: 'checkbox',
+        mode: 'single',
+        label: 'MaritalStatus',
     },
     {
-      type: 'checkbox',
-      mode: 'group',
-      groupLabel: ['Male', 'Female'],
-      label: 'Gender',
+        type: 'checkbox',
+        mode: 'group',
+        groupLabel: ['Male', 'Female'],
+        label: 'Gender',
     },
     {
-      type: 'select',
-      options: ['Bangalore', 'Jaipur', 'Delhi'],
-      label: 'City',
+        type: 'select',
+        options: ['Bangalore', 'Jaipur', 'Delhi'],
+        label: 'City',
     },
-  ];
+];
 
   const schema2: FormField[] = [
     {
         type: 'text',
         label: 'Full Name',
         validation: 'number',
-        min: 2,
+        min: 5,
         max: 50,
     },
     {
-        type: 'email',
+        type: 'text',
         label: 'Email Address',
         validation: 'number',
-        min: 2,
+        min: 10,
         max: 20,
     },
     {
@@ -80,9 +77,8 @@ const App = () => {
     <div>
       <Router>
             <Routes>
-            {/* <Route path="/" element={<Layout><Home schema={schema}/></Layout>} /> */}
-            {/* <Route path="/" element={<Layout><FormCard/></Layout>} /> */}
-            <Route path="/" element={<Layout><TestCard/></Layout>} />
+            <Route path="/" element={<Layout><FormCard schema={schema1} name={"Schema 1"}/></Layout>} />
+            {/* <Route path="/" element={<Layout><FormCard schema={schema2} name={"Schema 2"}/></Layout>} /> */}
             </Routes>
       </Router>
     </div>

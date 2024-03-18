@@ -1,9 +1,9 @@
 import React from 'react'
-import { FormField } from '../utils/useValidation'
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
+import { FormField } from '../pages/FormCard';
 
 interface CustomDropDownProps {
     field: FormField,
